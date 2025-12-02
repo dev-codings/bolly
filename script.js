@@ -64,6 +64,58 @@ const DataLoader = {
     }
 };
 
+// --- Storage Management ---
+const StorageManager = {
+    SECRET_KEY: 'bollywood_secret_key_v1', // Simple key for obfuscation
+
+    encrypt(data) {
+        try {
+            return CryptoJS.AES.encrypt(JSON.stringify(data), this.SECRET_KEY).toString();
+        } catch (e) {
+            console.error("Encryption failed:", e);
+            return null;
+        }
+    },
+
+    decrypt(ciphertext) {
+        try {
+            const bytes = CryptoJS.AES.decrypt(ciphertext, this.SECRET_KEY);
+            return JSON.parse(bytes.toString(CryptoJS.enc.Utf8));
+        } catch (e) {
+            // console.error("Decryption failed:", e);
+            return null;
+        }
+    },
+
+    setItem(key, value) {
+        const encrypted = this.encrypt(value);
+        if (encrypted) {
+            localStorage.setItem(key, encrypted);
+        }
+    },
+
+    getItem(key) {
+        const value = localStorage.getItem(key);
+        if (!value) return null;
+
+        // Try to decrypt
+        const decrypted = this.decrypt(value);
+        if (decrypted !== null) return decrypted;
+
+        // Fallback: It might be old plain text data. Return it as is (or parse if it looks like JSON)
+        // For numbers/strings that were stored directly
+        try {
+            return JSON.parse(value);
+        } catch (e) {
+            return value; // Return as string if not JSON
+        }
+    },
+
+    removeItem(key) {
+        localStorage.removeItem(key);
+    }
+};
+
 // --- State Management ---
 const State = {
     coins: 100,
@@ -72,18 +124,18 @@ const State = {
     completed: {}, // { packId: { levelIndex: true } }
 
     async init() {
-        // Load from LocalStorage
-        const savedCoins = localStorage.getItem('bollywood_coins');
-        if (savedCoins) this.coins = parseInt(savedCoins);
+        // Load from LocalStorage via StorageManager
+        const savedCoins = StorageManager.getItem('bollywood_coins');
+        if (savedCoins !== null) this.coins = parseInt(savedCoins);
 
-        const savedStars = localStorage.getItem('bollywood_stars');
-        if (savedStars) this.stars = parseInt(savedStars);
+        const savedStars = StorageManager.getItem('bollywood_stars');
+        if (savedStars !== null) this.stars = parseInt(savedStars);
 
-        const savedUnlocked = localStorage.getItem('bollywood_unlocked');
-        if (savedUnlocked) this.unlocked = JSON.parse(savedUnlocked);
+        const savedUnlocked = StorageManager.getItem('bollywood_unlocked');
+        if (savedUnlocked) this.unlocked = savedUnlocked;
 
-        const savedCompleted = localStorage.getItem('bollywood_completed');
-        if (savedCompleted) this.completed = JSON.parse(savedCompleted);
+        const savedCompleted = StorageManager.getItem('bollywood_completed');
+        if (savedCompleted) this.completed = savedCompleted;
 
         // Ensure data is loaded
         await DataLoader.init();
@@ -99,6 +151,9 @@ const State = {
         });
 
         this.updateUI();
+
+        // Save immediately to migrate any old plain text data to encrypted format
+        this.save();
     },
 
     isLevelUnlocked(packId, levelIndex) {
@@ -159,10 +214,10 @@ const State = {
     },
 
     save() {
-        localStorage.setItem('bollywood_coins', this.coins);
-        localStorage.setItem('bollywood_stars', this.stars);
-        localStorage.setItem('bollywood_unlocked', JSON.stringify(this.unlocked));
-        localStorage.setItem('bollywood_completed', JSON.stringify(this.completed));
+        StorageManager.setItem('bollywood_coins', this.coins);
+        StorageManager.setItem('bollywood_stars', this.stars);
+        StorageManager.setItem('bollywood_unlocked', this.unlocked);
+        StorageManager.setItem('bollywood_completed', this.completed);
     },
 
     updateUI() {
@@ -680,7 +735,7 @@ const Game = {
         // Onboarding Logic
         const onboardingMsg = document.getElementById('onboarding-msg');
         const closeOnboarding = document.getElementById('close-onboarding');
-        const hasSeenOnboarding = localStorage.getItem('bollywood_onboarding_seen');
+        const hasSeenOnboarding = StorageManager.getItem('bollywood_onboarding_seen');
 
         if (!hasSeenOnboarding && onboardingMsg) {
             // Show only on desktop/large screens where keyboard is relevant
@@ -690,7 +745,7 @@ const Game = {
                 if (closeOnboarding) {
                     closeOnboarding.onclick = () => {
                         onboardingMsg.classList.add('hidden');
-                        localStorage.setItem('bollywood_onboarding_seen', 'true');
+                        StorageManager.setItem('bollywood_onboarding_seen', true);
                     };
                 }
             }
