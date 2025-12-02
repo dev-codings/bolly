@@ -1,0 +1,156 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Guess Bollywood Movies - Play Online | Bollywood Guessing Game</title>
+    <meta name="description"
+        content="Play the best Bollywood guessing game! Guess Hindi movies, actors, and test your Bollywood knowledge. Fun, free, and challenging levels await!">
+    <meta name="keywords"
+        content="Guess Bollywood Movies, Guess Hindi Movies, Bollywood Quiz, Hindi Movie Game, Bollywood Trivia, Guess the Actor">
+
+    <!-- Open Graph / Facebook -->
+    <meta property="og:type" content="website">
+    <meta property="og:url" content="https://guessbollywood.codecerebrum.in/">
+    <meta property="og:title" content="Guess Bollywood Movies - Play Online">
+    <meta property="og:description"
+        content="Test your Bollywood IQ! Guess movies from emojis, scenes, and more. Play now for free!">
+    <meta property="og:image" content="https://guessbollywood.codecerebrum.in/og-image.jpg">
+
+    <!-- Twitter -->
+    <meta property="twitter:card" content="summary_large_image">
+    <meta property="twitter:title" content="Guess Bollywood Movies - Play Online">
+    <meta property="twitter:description"
+        content="Test your Bollywood IQ! Guess movies from emojis, scenes, and more. Play now for free!">
+    <meta property="twitter:image" content="https://guessbollywood.codecerebrum.in/og-image.jpg">
+    <script src="https://cdn.tailwindcss.com"></script>
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Outfit:wght@300;400;600;800&display=swap" rel="stylesheet">
+    <link rel="stylesheet" href="style.css">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Outfit', 'sans-serif'],
+                    },
+                    colors: {
+                        'cinema-black': '#0a0a0a',
+                        'cinema-dark': '#1a1a1a',
+                        'cinema-gold': '#ffd700',
+                        'cinema-red': '#e50914',
+                    },
+                    animation: {
+                        'fade-in': 'fadeIn 0.5s ease-out',
+                        'slide-up': 'slideUp 0.5s ease-out',
+                        'pop': 'pop 0.3s cubic-bezier(0.175, 0.885, 0.32, 1.275)',
+                    },
+                    keyframes: {
+                        fadeIn: {
+                            '0%': { opacity: '0' },
+                            '100%': { opacity: '1' },
+                        },
+                        slideUp: {
+                            '0%': { transform: 'translateY(20px)', opacity: '0' },
+                            '100%': { transform: 'translateY(0)', opacity: '1' },
+                        },
+                        pop: {
+                            '0%': { transform: 'scale(0.5)', opacity: '0' },
+                            '100%': { transform: 'scale(1)', opacity: '1' },
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+</head>
+
+<body
+    class="bg-cinema-black text-white font-sans min-h-screen overflow-x-hidden selection:bg-cinema-red selection:text-white">
+
+    <!-- Background Effects -->
+    <div class="fixed inset-0 pointer-events-none z-0">
+        <div class="absolute top-0 left-0 w-full h-1/2 bg-gradient-to-b from-cinema-red/10 to-transparent"></div>
+        <div class="absolute bottom-0 right-0 w-96 h-96 bg-cinema-gold/5 rounded-full blur-3xl"></div>
+    </div>
+
+    <!-- Mobile App Banner (Visible only on mobile) -->
+    <div id="mobile-banner"
+        class="fixed top-0 left-0 w-full bg-gradient-to-r from-purple-900 to-cinema-red z-[60] p-2 flex items-center justify-between shadow-lg md:hidden transform transition-transform duration-300">
+        <div class="flex items-center gap-3">
+            <div class="w-10 h-10 bg-white rounded-lg flex items-center justify-center text-xl shadow-sm">🎬</div>
+            <div>
+                <h3 class="text-xs font-bold text-white leading-tight">Guess Bollywood Movies</h3>
+                <p class="text-[10px] text-white/80">Get the mobile app!</p>
+            </div>
+        </div>
+        <div class="flex items-center gap-2">
+            <button
+                class="bg-white text-cinema-red text-xs font-bold px-3 py-1.5 rounded-full shadow-sm active:scale-95 transition-transform"
+                onclick="
+                    const userAgent = navigator.userAgent || navigator.vendor || window.opera;
+                    if (/iPad|iPhone|iPod/.test(userAgent) && !window.MSStream) {
+                        window.open('https:\/\/play.google.com/store/apps/details?id=com.codecerebrum.guess_indian&hl=en_IN', '_blank');
+                    } else if (/android/i.test(userAgent)) {
+                        window.open('https:\/\/play.google.com/store/apps/details?id=com.codecerebrum.guess_indian&hl=en_IN', '_blank');
+                    }
+                ">GET</button>
+            <button id="close-banner" class="text-white/60 hover:text-white p-1">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-4 w-4" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd"
+                        d="M4.293 4.293a1 1 0 011.414 0L10 8.586l4.293-4.293a1 1 0 111.414 1.414L11.414 10l4.293 4.293a1 1 0 01-1.414 1.414L10 11.414l-4.293 4.293a1 1 0 01-1.414-1.414L8.586 10 4.293 5.707a1 1 0 010-1.414z"
+                        clip-rule="evenodd" />
+                </svg>
+            </button>
+        </div>
+    </div>
+
+    <!-- App Container -->
+    <div id="app"
+        class="relative z-10 max-w-md md:max-w-5xl mx-auto min-h-screen bg-cinema-dark/50 backdrop-blur-sm shadow-2xl border-x border-white/5 flex flex-col pt-14 md:pt-0">
+
+        <!-- Header -->
+        <header
+            class="p-4 flex justify-between items-center sticky top-0 bg-cinema-black/80 backdrop-blur-md z-50 border-b border-white/5">
+            <h1 class="text-xl font-bold tracking-wider text-transparent bg-clip-text bg-gradient-to-r from-cinema-gold to-yellow-500 cursor-pointer"
+                onclick="window.location.href='index.html'">BOLLYWOOD<span
+                    class="block text-xs text-white/60 font-normal tracking-widest">GUESSING GAME</span></h1>
+            <div class="flex items-center gap-3">
+                <div class="flex items-center gap-2 bg-white/10 px-3 py-1 rounded-full border border-white/10">
+                    <span class="text-cinema-gold">⭐</span>
+                    <span id="star-display" class="font-bold">0</span>
+                </div>
+                <div class="flex items-center gap-2 bg-white/10 px-3 py-1 rounded-full border border-white/10">
+                    <span class="text-cinema-gold">🪙</span>
+                    <span id="coin-display" class="font-bold">0</span>
+                </div>
+            </div>
+        </header>
+
+        <!-- Views -->
+        <main id="main-content" class="p-4 pb-20 flex-1 flex flex-col">
+            <div class="space-y-6 animate-fade-in max-w-2xl mx-auto w-full">
+                <!-- Navigation Tabs -->
+                <div class="flex justify-center gap-4 mb-6">
+                    <button id="tab-packs"
+                        class="px-6 py-2 rounded-full font-bold transition-all text-cinema-black bg-cinema-gold shadow-lg scale-105">
+                        Packs
+                    </button>
+                    <button id="tab-events"
+                        class="px-6 py-2 rounded-full font-bold transition-all text-white/60 hover:text-white bg-white/5 hover:bg-white/10">
+                        Events
+                    </button>
+                </div>
+
+                <div id="packs-list" class="grid gap-4 md:grid-cols-2">
+                    <!-- Pack Items will be generated here -->
+                </div>
+            </div>
+        </main>
+
+        <script src="script.js"></script>
+</body>
+
+</html>
